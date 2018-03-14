@@ -61,7 +61,7 @@ build_date  = "Tue Oct 10 18:56:50 2017 2.2.6"
 # The libvlc doc states that filenames are expected to be in UTF8, do
 # not rely on sys.getfilesystemencoding() which will be confused,
 # esp. on windows.
-vvDEFAULT_ENCODING = 'utf-8'
+DEFAULT_ENCODING = 'utf-8'
 
 if sys.version_info[0] > 2:
     str = str
@@ -6954,45 +6954,4 @@ def debug_callback(event, *args, **kwds):
         l.extend(sorted('%s=%s' % t for t in kwds.items()))
     print('Debug callback (%s)' % ', '.join(l))
 
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
-    try:
-        from msvcrt import getch
-    except ImportError:
-        import termios
-        import tty
-
-        def getch():  # getchar(), getc(stdin)  #PYCHOK flake
-            fd = sys.stdin.fileno()
-            old = termios.tcgetattr(fd)
-            try:
-                tty.setraw(fd)
-                ch = sys.stdin.read(1)
-            finally:
-                termios.tcsetattr(fd, termios.TCSADRAIN, old)
-            return ch
-
-    def end_callback(event):
-        print('End of media stream (event %s)' % event.type)
-        sys.exit(0)
-
-    echo_position = False
-    def pos_callback(event, player):
-        if echo_position:
-            sys.stdout.write('\r%s to %.2f%% (%.2f%%)' % (event.type,
-                                                          event.u.new_position * 100,
-                                                          player.get_position() * 100))
-            sys.stdout.flush()
-
-    def print_version():
-        """Print version of this vlc.py and of the libvlc"""
-        try:
-            print('Build date: %s (%#x)' % (build_date, hex_version()))
-            print('LibVLC version: %s (%#x)' % (bytes_to_str(libvlc_get_version()), libvlc_hex_version()))
-            print('LibVLC compiler: %s' % bytes_to_str(libvlc_get_compiler()))
-            if plugin_path:
-                print('Plugin path: %s' % plugin_path)
-        except:
-            print('Error: %s' % sys.exc_info()[1])
 
